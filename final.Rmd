@@ -81,7 +81,7 @@ m_i$Year <- as.integer(m_i$Year)
 m_i <- m_i %>%
   filter(!is.na(Mortality)) %>%
   filter(!is.na(Income)) %>%
-  filter(`Country Code` == "RWA")
+  filter(`Country Code` == "USA")
 
 ggplot(m_i, aes(x = Mortality, y = Income, color = factor(floor(Year / 10) * 10))) +
   geom_point() 
@@ -110,5 +110,21 @@ disease_filtered <- filter(disease_income_longer)
 ggplot(disease_filtered, aes(x = Income, y = Deaths, color = Disease)) +
   geom_point() +
   theme(legend.position="none")
-  
+```
+
+
+#### 4. Loading population data
+```{r}
+populations <- read_delim("population.csv")
+populations[, c("Indicator Name", "Indicator Code")] <- list(NULL)
+head(populations)
+```
+
+#### 5. Pivot population longer
+```{r}
+populations_longer <- pivot_longer(populations, -c("Country Code", "Country Name"), names_to="Year", values_to="Population")
+
+populations_longer <- rename(populations_longer, Code="Country Code")
+print(populations_longer[populations_longer$Code == "USA"])
+
 ```
