@@ -105,7 +105,7 @@ disease_income_longer <- pivot_longer(disease_income, -c("Code", "Country Name",
 
 #### 3. Plot Disease vs Income
 ```{r}
-disease_filtered <- filter(disease_income_longer)
+disease_filtered <- filter(disease_income_longer[disease_income_longer$Code == "AFG", ])
 
 ggplot(disease_filtered, aes(x = Income, y = Deaths, color = Disease)) +
   geom_point() +
@@ -125,6 +125,17 @@ head(populations)
 populations_longer <- pivot_longer(populations, -c("Country Code", "Country Name"), names_to="Year", values_to="Population")
 
 populations_longer <- rename(populations_longer, Code="Country Code")
-print(populations_longer[populations_longer$Code == "USA"])
+```
 
+
+#### 6. Disease Impact WorldWide
+```{r}
+total_disease <- disease_filtered %>% 
+  group_by(Disease, Year) %>%
+  summarise(total_deaths = sum(Deaths, na.rm=TRUE))
+
+
+ggplot(total_disease, aes(x = Year, y = total_deaths, color = Disease)) +
+  geom_point() +
+  theme(legend.position="none")
 ```
