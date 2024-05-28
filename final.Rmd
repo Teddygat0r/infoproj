@@ -1,0 +1,114 @@
+---
+title: "final"
+author: "Joshua Zhang"
+date: "5-26-2024"
+---
+
+```{r}
+library(tidyverse)
+```
+
+## Target Questions
+- What are the impacts of infecting various diseases like malaria, pneumonia, and diarrheal diseases in contributing to child mortality? Which factor plays the biggest role in triggering mortality?
+- How does the country’s economic conditions and income levels affect child mortality?
+- How does age impact child mortality, especially when it comes to diseases?
+- What is the current global child mortality rate? How is the mortality rate distributed across different continents?
+
+
+
+## Viewing Datasets
+
+#### 1. Loading Datasets
+```{r}
+cause_of_death <- read_delim("causes-of-death-in-children.csv")
+by_age <- read_delim("child-deaths-by-age.csv")
+mortality_fertility_income <- read_delim("MortalityFertilityIncome.csv")
+
+head(cause_of_death)
+head(by_age)
+head(mortality_fertility_income)
+```
+
+#### 2. Viewing Data Columns
+```{r}
+cat("Cause of Death\n")
+print(names(cause_of_death))
+cat("\n")
+cat("Death By Age\n")
+print(names(by_age))
+cat("Mortality Fertility And Income\n")
+print(names(mortality_fertility_income))
+```
+Year looks like a similar column we could use in all the datasets. We will need to pivot the mortality fertility income (MFI) dataset to be longer.
+
+
+#### 3. Splitting the Mortality Fertility Income (MFI) dataframe
+```{r}
+mortality <- mortality_fertility_income %>%
+  select(starts_with("m"))
+
+fertility <- mortality_fertility_income %>%
+  select(starts_with("f"))
+
+income <- mortality_fertility_income %>%
+  select(starts_with("i"))
+
+names(mortality) <- substring(names(mortality), 2)
+names(fertility) <- substring(names(fertility), 2)
+names(income) <- substring(names(income), 2)
+
+mortality <- cbind(mortality, mortality_fertility_income[,c('Country Name', 'Country Code', 'Region')])
+fertility <- cbind(fertility, mortality_fertility_income[,c('Country Name', 'Country Code', 'Region')])
+income <- cbind(income, mortality_fertility_income[,c('Country Name', 'Country Code', 'Region')])
+```
+
+#### 4. Making the income dataframe long instead of wide
+```{r}
+mortality_longer <- pivot_longer(mortality, -c("Country Code", "Country Name", "Region"), names_to="Year", values_to="Mortality")
+
+income_longer <- pivot_longer(income, -c("Country Code", "Country Name", "Region"), names_to="Year", values_to="Income")
+```
+
+
+
+#### 5. Mortality Vs Income
+
+```{r}
+m_i <- merge(mortality_longer, income_longer)
+
+m_i$Year <- as.integer(m_i$Year)
+
+m_i <- m_i %>%
+  filter(!is.na(Mortality)) %>%
+  filter(!is.na(Income)) %>%
+  filter(`Country Code` == "RWA")
+
+ggplot(m_i, aes(x = Mortality, y = Income, color = factor(floor(Year / 10) * 10))) +
+  geom_point() 
+```
+
+
+## Child Mortality Causes
+
+#### 1. Changing dataset names.
+```{r}
+income_renamed <- rename(income_longer, Code="Country Code")
+print(names(income_renamed))
+```
+
+#### 2. Merging the two datasets, reshape longer
+```{r}
+income_renamed$Year <- as.integer(income_renamed$Year)
+disease_income <- merge(income_renamed, cause_of_death)
+disease_income_longer <- pivot_longer(disease_income, -c("Code", "Country Name", "Region", "Income", "Entity", "Year"), names_to="Disease", values_to="Deaths")
+```
+
+#### 3. Plot Disease vs Income
+```{r}
+disease_filtered <- filter(disease_income_longer)
+
+ggplot(disease_filtered, aes(x = Income, y = Deaths, color = Disease)) +
+  geom_point() +
+  theme(legend.position="none")
+  
+```
