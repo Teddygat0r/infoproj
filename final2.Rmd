@@ -89,6 +89,25 @@ ggplot(m_i, aes(x = Mortality, y = Income, color = `Country Name`)) +
 
 ```
 
+#### 6. Mortality Vs Income Rwanda
+
+```{r}
+m_i <- merge(mortality_longer, income_longer)
+
+m_i$Year <- as.integer(m_i$Year)
+
+m_i <- m_i %>%
+  filter(!is.na(Mortality)) %>%
+  filter(!is.na(Income)) %>%
+  filter(`Country Code` %in% c("ARG"))
+
+ggplot(m_i, aes(x = Mortality, y = Income)) +
+  geom_point(aes(color = factor(floor(Year / 10) * 10))) +
+  labs(color='Decade') + 
+  geom_text(aes(label = ifelse(Year == 2000, "Depression", ""), vjust = -0.5))
+
+```
+
 
 ## Child Mortality Causes
 
@@ -151,6 +170,26 @@ total_disease_populated$Year <- as.numeric(as.character(total_disease_populated$
 ggplot(total_disease_populated, aes(x = Year, y = per_capita, color = Disease)) +
   geom_point() +
   theme(legend.position="none")
+```
+
+#### 8. Per Capita Death Rates by disease vs overall mortality
+
+```{r}
+total_disease_deaths_per_capita <- total_disease_populated %>%
+  group_by(Code, Year) %>%
+  summarise(total_deaths = sum(per_capita, na.rm=TRUE))
+
+mortality_year_int <- mortality_longer
+mortality_year_int$Year <- as.numeric(as.character(mortality_year_int$Year))
+mortality_year_int <- rename(mortality_year_int, Code="Country Code")
+
+total_disease_deaths_mortality <- merge(total_disease_deaths_per_capita, mortality_year_int) %>% filter(Mortality < 2000)
+
+head(total_disease_deaths_mortality)
+ggplot(total_disease_deaths_mortality, aes(x = Mortality, y = total_deaths, color=Code)) +
+  geom_point() +
+  geom_text(aes(label = ifelse(Year == 2010, Code, ""), vjust = -0.5)) +
+  theme(legend.position = 'none')
 ```
 
 

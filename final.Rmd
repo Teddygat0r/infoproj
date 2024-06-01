@@ -1,50 +1,19 @@
----
-title: "final"
-author: "Joshua Zhang"
-date: "5-26-2024"
----
 
-```{r}
+```{r echo=FALSE, message=FALSE, results='hide', include=FALSE}
 library(tidyverse)
+library(stringr)
+options(dplyr.summarise.inform = FALSE)
 ```
 
-## Target Questions
-- Investigate effects of various factors (e.g., income levels, disease infections) on child mortality rate.
-- Compare child mortality rates across different countries.
-- Examine the impact of economic conditions/income levels on child mortality rates.
-- Identify the most important factors influencing child mortality rate
+## Results
 
-
-
-
-## Viewing Datasets
-
-#### 1. Loading Datasets
-```{r}
+```{r echo=FALSE, message=FALSE, results='hide'}
 cause_of_death <- read_delim("causes-of-death-in-children.csv")
 by_age <- read_delim("child-deaths-by-age.csv")
 mortality_fertility_income <- read_delim("MortalityFertilityIncome.csv")
-
-head(cause_of_death)
-head(by_age)
-head(mortality_fertility_income)
 ```
 
-#### 2. Viewing Data Columns
-```{r}
-cat("Cause of Death\n")
-print(names(cause_of_death))
-cat("\n")
-cat("Death By Age\n")
-print(names(by_age))
-cat("Mortality Fertility And Income\n")
-print(names(mortality_fertility_income))
-```
-Year looks like a similar column we could use in all the datasets. We will need to pivot the mortality fertility income (MFI) dataset to be longer.
-
-
-#### 3. Splitting the Mortality Fertility Income (MFI) dataframe
-```{r}
+```{r echo=FALSE, message=FALSE, results='hide'}
 mortality <- mortality_fertility_income %>%
   select(starts_with("m"))
 
@@ -63,18 +32,33 @@ fertility <- cbind(fertility, mortality_fertility_income[,c('Country Name', 'Cou
 income <- cbind(income, mortality_fertility_income[,c('Country Name', 'Country Code', 'Region')])
 ```
 
-#### 4. Making the income dataframe long instead of wide
-```{r}
+```{r echo=FALSE, message=FALSE, results='hide'}
 mortality_longer <- pivot_longer(mortality, -c("Country Code", "Country Name", "Region"), names_to="Year", values_to="Mortality")
 
 income_longer <- pivot_longer(income, -c("Country Code", "Country Name", "Region"), names_to="Year", values_to="Income")
 ```
 
 
+## Mortality vs Income of USA
+```{r echo=FALSE, message=FALSE, results='hide'}
+m_i <- merge(mortality_longer, income_longer)
 
-#### 5. Mortality Vs Income
+m_i$Year <- as.integer(m_i$Year)
 
-```{r}
+m_i <- m_i %>%
+  filter(!is.na(Mortality)) %>%
+  filter(!is.na(Income)) %>%
+  filter(`Country Code` %in% c("ARG"))
+
+ggplot(m_i, aes(x = Mortality, y = Income)) +
+  geom_point(aes(color = factor(floor(Year / 10) * 10))) +
+  labs(color='Decade')
+```
+Different colors in this plot represent different decades.
+
+## Mortality vs Income of 5 Countries
+
+```{r echo=FALSE, message=FALSE, results='hide'}
 m_i <- merge(mortality_longer, income_longer)
 
 m_i$Year <- as.integer(m_i$Year)
@@ -86,60 +70,139 @@ m_i <- m_i %>%
 
 ggplot(m_i, aes(x = Mortality, y = Income, color = `Country Name`)) +
   geom_point() +
-  labs(color='Decade') 
+  labs(color='Country') 
+
+```
+
+#### Mortality Vs Income Rwanda
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+m_i <- merge(mortality_longer, income_longer)
+
+m_i$Year <- as.integer(m_i$Year)
+
+m_i <- m_i %>%
+  filter(!is.na(Mortality)) %>%
+  filter(!is.na(Income)) %>%
+  filter(`Country Code` %in% c("RWA"))
+
+ggplot(m_i, aes(x = Mortality, y = Income)) +
+  geom_point(aes(color = factor(floor(Year / 10) * 10))) +
+  labs(color='Decade') + 
+  geom_text(aes(label = ifelse(Year == 1994, "Genocide", ""), vjust = -0.5))
 
 ```
 
 
-## Child Mortality Causes
-
-#### 1. Changing dataset names.
-```{r}
+```{r echo=FALSE, message=FALSE, results='hide'}
 income_renamed <- rename(income_longer, Code="Country Code")
-print(names(income_renamed))
 ```
 
-#### 2. Merging the two datasets, reshape longer
-```{r}
+```{r echo=FALSE, message=FALSE, results='hide'}
 income_renamed$Year <- as.integer(income_renamed$Year)
 disease_income <- merge(income_renamed, cause_of_death)
 disease_income_longer <- pivot_longer(disease_income, -c("Code", "Country Name", "Region", "Income", "Entity", "Year"), names_to="Disease", values_to="Deaths")
 ```
 
-#### 3. Plot Disease vs Income
-```{r}
-disease_filtered <- filter(disease_income_longer[disease_income_longer$Code == "AFG", ])
+```{r echo=FALSE, message=FALSE, results='hide'}
+disease_income_longer <- disease_income_longer %>% 
+  filter(!is.na(Income))
 
-ggplot(disease_filtered, aes(x = Income, y = Deaths, color = Disease)) +
-  geom_point() +
-  theme(legend.position="none")
+disease_filtered <- filter(disease_income_longer[disease_income_longer$Code == "USA", ])
 ```
 
-
-#### 4. Loading population data
-```{r}
+```{r echo=FALSE, message=FALSE, results='hide'}
 populations <- read_delim("population.csv")
 populations[, c("Indicator Name", "Indicator Code")] <- list(NULL)
-head(populations)
 ```
 
-#### 5. Pivot population longer
-```{r}
+```{r echo=FALSE, message=FALSE, results='hide'}
 populations_longer <- pivot_longer(populations, -c("Country Code", "Country Name"), names_to="Year", values_to="Population")
 
 populations_longer <- rename(populations_longer, Code="Country Code")
 ```
 
-
-#### 6. Disease Impact WorldWide
-```{r}
-total_disease <- disease_filtered %>% 
+```{r echo=FALSE, message=FALSE, results='hide', fig.width=12, fig.height=6}
+total_disease <- disease_income_longer %>% 
   group_by(Disease, Year) %>%
   summarise(total_deaths = sum(Deaths, na.rm=TRUE))
-
-
+total_disease$Disease <- str_extract(total_disease$Disease, "(?<=- ).*?(?= -)")
 ggplot(total_disease, aes(x = Year, y = total_deaths, color = Disease)) +
+  geom_point()
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+total_disease_populated <- merge(populations_longer, disease_income_longer)
+
+
+total_disease_populated$per_capita <- total_disease_populated$Deaths * 1000 / total_disease_populated$Population
+
+total_disease_populated$Year <- as.numeric(as.character(total_disease_populated$Year))
+
+```
+
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+total_disease_deaths_per_capita <- total_disease_populated %>%
+  group_by(Code, Year) %>%
+  summarise(total_deaths = sum(per_capita, na.rm=TRUE))
+
+mortality_year_int <- mortality_longer
+mortality_year_int$Year <- as.numeric(as.character(mortality_year_int$Year))
+mortality_year_int <- rename(mortality_year_int, Code="Country Code")
+
+total_disease_deaths_mortality <- merge(total_disease_deaths_per_capita, mortality_year_int) %>% filter(Mortality < 2000)
+
+
+```
+
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+cleaned_mortality_longer <- mortality_longer %>% 
+  filter(!is.na(Mortality))
+
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+cleaned_mortality_longer %>% 
+  group_by(Region) %>% 
+  summarise(total_mortality = sum(Mortality))
+```
+```{r echo=FALSE, message=FALSE, results='hide'}
+min_year <- min(cleaned_mortality_longer$Year)
+max_year <- max(cleaned_mortality_longer$Year)
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+year_selected <- c("1975", "1985", "1995", "2005", "2015")
+
+selected_years <- cleaned_mortality_longer %>% 
+  filter(Year %in% year_selected) %>%
+  group_by(Region, Year) %>% 
+  summarise(total_mortality = mean(Mortality))
+
+ggplot(selected_years, aes(x = as.factor(Year), y = total_mortality, fill = Region)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(title = "Average Mortality by Region for Selected Years",
+       x = "Year",
+       y = "Average Mortality",
+       fill = "Region") +
+  theme_minimal()
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+selected_years <- cleaned_mortality_longer %>% 
+  group_by(Region, Year) %>% 
+  summarise(total_mortality = mean(Mortality))
+
+selected_years$Year <- as.numeric(as.character(selected_years$Year))
+
+ggplot(selected_years, aes(x = Year, y = total_mortality, color = Region)) +
   geom_point() +
-  theme(legend.position="none")
+  labs(title = "Average Mortality by Region",
+       x = "Year",
+       y = "Average Mortality",
+       color = "Region") +
+  theme_minimal()
 ```
 

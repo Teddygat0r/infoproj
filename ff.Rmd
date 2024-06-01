@@ -1,0 +1,272 @@
+---
+title: "Data Analysis on Child Mortality"
+author: "Kejia(Vivian)Cui, Joshua Zhang, Betty Li and Corrine Peng"
+date: "5-31-2024"
+---
+  
+## Abstract
+We are doing a project based on child mortality across different countries and regions using OurWorld Data and data collected from kaggle.com from 1970 to 2016. We primarily focus on several factors like countries’ income levels/economic conditions, and disease infections in affecting the country’s child mortality. To examine the correlation between child mortality and income levels, we merged child mortality and income datasets to plot a scatter plot to demonstrate the relationship between overall income of the country with respect to child mortality per capita across 1970 to 2016. We also examine the relationship between diseases and child mortality, combining “Causes of child death” and income datasets together to show the association between disease infections and child mortality. We also visualize the overall trend of child mortality between 1970 to 2016. Most important finding is that the overall child mortality tends to decrease over time globally. The inverse relationship between income levels and child mortality rates is one of the most important discoveries from our analysis as economic prosperity is a key factor in lowering child mortality as increased income levels could contribute to improved medical care quality and better nutrition. Significant historical events such as conflicts or genocides, exemplified by the Rwandan Genocide, do not deviate substantially from the overall global trends in child mortality. The long-term effects of those events would be reduced by economic prosperity. 
+
+## Introduction
+Child mortality is an interesting topic as it is an important indicator of a country’s public health and overall societal well-being. High child mortality can trigger social problems in the long-run. The main factors that contribute to high child mortality rate include poverty, inadequate parental care, diseases, nutritions and others. We already know that the child mortality rate was severely high in 1960-1970 in many developing countries like countries in South Asia and Africa. Child mortality rate is higher in the US compared to other high-income countries. We will demonstrate the effects of various diseases in determining the numbers of child mortality, and demonstrate the factors that are most likely to trigger child mortality. We would examine the impacts of a country’s economic conditions/incomes in determining child mortality. We would compute the current child mortality rate globally and the total child mortality in various regions like Europe, East Asia, South Asia, and Africa. We would demonstrate the overall distribution of child mortality across regions and countries throughout 1970 to 2016. We would compute the average child mortality rate in various regions to get an idea about the regions with the most child mortality rate and the regions with least child mortality. The topic is interesting because it has a profound impact on public awareness of child mortality. The information from our report is useful to multiple groups of individuals like policy makers, government officials, and healthcare providers. Policy makers and government officials could identify the major health risk factors and develop policies promoting high-quality public health. Researchers and expertises could implement the data to conduct scientific research about trends of child mortality rate and important causes of child mortality based on results from our project. Healthcare providers like doctors and nurses would know the major causes of child death to provide treatments and develop preventative strategies against diseases. Non-governmental organizations and charities may use information from our project to implement programs that enhance the children’s well-being and health, especially in regions lacking access to public resources. School administrators and educators could also be the target audience because they would be interested in knowledge about public health to increase health education at schools. 
+
+## Data
+We want to study the relationship between various factors that determine child mortality in specific regions and countries. Therefore data was analyzed based on child mortality rates in different countries and regions from 1970 to 2016. Focusing on the effect of income levels and disease infections on child mortality, we will compare the total child mortality in different regions in different years, the relationship between income levels and child mortality, and the relationship between diseases and child mortality in different years. Average child mortality rates in different regions.
+
+Dataset 1: Causes of Death in Children
+The dataset source is Kaggle, collected by programmerrdai. The access link is (https://www.kaggle.com/datasets/programmerrdai/child-and-infant-mortality?select=causes-of-death-in-children.csv). The dataset is free to access for registered users, mainly for research and non-commercial purposes.
+This dataset covers statistics on the causes of death in children globally. The population is the global range of different countries' child mortality over various years. The sample consists of specific causes of death in children for each country in specific years.
+The dataset contains 119 rows and 24 columns. Each row represents child mortality statistics for a particular country in a specific year. Relevant variables include country name (Country), year (Year), and the number of deaths from various causes (e.g., respiratory infections, diarrheal diseases, malaria). Data quality issues include missing cause-of-death data for certain countries and years, which account for about 10% of the dataset, and some entries where the number of deaths is negative, which is clearly an entry error.
+
+Dataset 2: Child Deaths by Age
+The dataset source is Kaggle, collected by programmerrdai. The access link is (https://www.kaggle.com/datasets/programmerrdai/child-and-infant-mortality?select=child-deaths-by-age.csv). The dataset is free to access for registered users, mainly for research and non-commercial purposes.
+This dataset covers statistics on child deaths by age group globally. The population is the global range of different countries' child mortality over various years. The sample consists of child mortality data by age group for each country in specific years.
+The dataset contains 96 rows and 5 columns. Each row represents child mortality statistics for a particular country in a specific year, broken down by age group. Relevant variables include country name (Country), year (Year), number of deaths under age 5 (Under-5 deaths), number of infant deaths (Infant deaths), and number of neonatal deaths (Neonatal deaths). Data quality issues include missing data for certain countries and years, accounting for about 5% of the dataset, and some entries where the number of deaths does not match the total population, indicating possible data entry errors.
+
+Dataset 3: Infant Mortality Fertility Income
+The dataset source is Kaggle, collected by burhanykiyakoglu. The access link is (https://www.kaggle.com/datasets/burhanykiyakoglu/infant-mortality-fertility-income). The dataset is free to access for registered users, mainly for research and non-commercial purposes.
+This dataset covers statistics on infant mortality rates, fertility rates, and per capita income globally. The population is the global range of different countries' infant mortality, fertility, and income data over various years. The sample consists of specific statistics for each country in specific years.
+The dataset contains 187 rows and 5 columns. Each row represents the infant mortality rate, fertility rate, and per capita income for a particular country in a specific year. Relevant variables include country name (Country), year (Year), infant mortality rate (Infant Mortality Rate, per thousand live births), fertility rate (Fertility Rate, average number of children per woman), and per capita income (Income per capita, in USD). Data quality issues include missing income data for some countries, accounting for about 2% of the dataset, and some entries where income values are extremely low, which may indicate entry errors or differences in statistical methods.
+
+## Methods
+We began by analyzing the “Mortality, fertility, and income” dataset. The dataset initially stored mortality, fertility, and income values in a ‘wide’ dataframe. The country was considered the key value, and there were individual columns marked for every year and value. For example, the column ‘m1970’ represented the mortality rate in 1970, while ‘f2000’ represented the fertility rate in the year 2000. We split the dataframe into 3 separate longform dataframes, now each representing a single data value and storing a year column as well.
+
+Using this data, we then merged the mortality and income datasets to get our first graph. The graph would plot the overall income of the country (adjusted to modern values) compared to the mortality rate per capita for children for every year between 1970 to 2016. The results were a bit of a mess, but after filtering it down to a couple countries, we got some meaningful results. After filtering out N/A values, we observed an inverse relationship between the two values. Afterwards, we also did some explorative analysis on specific historical events that might have affected the data. The most notable of these was the Rwandan Genocide, which occurred in 1994. We marked these points on the graph to signify years we predicted to be significant outliers, and made separate graphs for them.
+
+Our next goal was to explore child mortality caused by illness. We began with the “Cause of Child Death” dataframe and merged it with the income dataframe. This dataframe was for the most part formatted similarly with the income dataframe, so we did not need to modify it. However, after the merge, we performed another pivot, making it even longer than before. Previously there was a column for every disease and its impact, but afterwards, we changed it to just 2 columns: one with the disease name and the other with the mortality. The purpose of this change was to make it easier to plot multiple diseases at the same time, as now we had just one column marking the amount of deaths caused by the disease. As a result, we made a couple plots showing the impact of diseases over time, as well as how income relates to disease mortality rates. 
+
+One other thing notable about the “Cause of Child Death” dataframe is that the figures included were the exact number of lives impacted. We wanted to convert this to mortality per capita, so we downloaded a new database including the population of countries over time. 
+
+## Results
+
+```{r echo=FALSE, message=FALSE, results='hide', include=FALSE}
+library(tidyverse)
+library(stringr)
+options(dplyr.summarise.inform = FALSE)
+```
+
+## Results
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+cause_of_death <- read_delim("causes-of-death-in-children.csv")
+by_age <- read_delim("child-deaths-by-age.csv")
+mortality_fertility_income <- read_delim("MortalityFertilityIncome.csv")
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+mortality <- mortality_fertility_income %>%
+  select(starts_with("m"))
+
+fertility <- mortality_fertility_income %>%
+  select(starts_with("f"))
+
+income <- mortality_fertility_income %>%
+  select(starts_with("i"))
+
+names(mortality) <- substring(names(mortality), 2)
+names(fertility) <- substring(names(fertility), 2)
+names(income) <- substring(names(income), 2)
+
+mortality <- cbind(mortality, mortality_fertility_income[,c('Country Name', 'Country Code', 'Region')])
+fertility <- cbind(fertility, mortality_fertility_income[,c('Country Name', 'Country Code', 'Region')])
+income <- cbind(income, mortality_fertility_income[,c('Country Name', 'Country Code', 'Region')])
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+mortality_longer <- pivot_longer(mortality, -c("Country Code", "Country Name", "Region"), names_to="Year", values_to="Mortality")
+
+income_longer <- pivot_longer(income, -c("Country Code", "Country Name", "Region"), names_to="Year", values_to="Income")
+```
+
+
+## Mortality vs Income of USA
+```{r echo=FALSE, message=FALSE, results='hide'}
+m_i <- merge(mortality_longer, income_longer)
+
+m_i$Year <- as.integer(m_i$Year)
+
+m_i <- m_i %>%
+  filter(!is.na(Mortality)) %>%
+  filter(!is.na(Income)) %>%
+  filter(`Country Code` %in% c("ARG"))
+
+ggplot(m_i, aes(x = Mortality, y = Income)) +
+  geom_point(aes(color = factor(floor(Year / 10) * 10))) +
+  labs(color='Decade')
+```
+Different colors in this plot represent different decades.
+
+## Mortality vs Income of 5 Countries
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+m_i <- merge(mortality_longer, income_longer)
+
+m_i$Year <- as.integer(m_i$Year)
+
+m_i <- m_i %>%
+  filter(!is.na(Mortality)) %>%
+  filter(!is.na(Income)) %>%
+  filter(`Country Code` %in% c("USA", "CHN", "IND", "GBR", "RWA"))
+
+ggplot(m_i, aes(x = Mortality, y = Income, color = `Country Name`)) +
+  geom_point() +
+  labs(color='Country') 
+
+```
+Different colors in this graph represent different countries.
+
+Each data point measures the child mortality rate & income of the country of a specific year. We can observe an overall inverse relationship between the mortality rate and income. The trend appears visibly in many different countries of different economic status. Another notable feature is that income and mortality rate tend to change significantly at different time periods, with income increasing a few years after mortality rate has decreased. This suggests that perhaps the increase in population caused by child mortality rates decreasing caused an increase in income generated. 
+
+#### Mortality Vs Income Rwanda
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+m_i <- merge(mortality_longer, income_longer)
+
+m_i$Year <- as.integer(m_i$Year)
+
+m_i <- m_i %>%
+  filter(!is.na(Mortality)) %>%
+  filter(!is.na(Income)) %>%
+  filter(`Country Code` %in% c("RWA"))
+
+ggplot(m_i, aes(x = Mortality, y = Income)) +
+  geom_point(aes(color = factor(floor(Year / 10) * 10))) +
+  labs(color='Decade') + 
+  geom_text(aes(label = ifelse(Year == 1994, "Genocide", ""), vjust = -0.5))
+
+```
+
+We also wanted to analyze Rwanda because it would let us see the impact of significant historical events on the results of the plot. The Rwandan Genocide occurred during 1994, so we expected a significant increase in mortality compared to income. However, it didn’t create a significant outlier as we expected. We believe this is because the genocide had a significant impact on the income of the country as well, so it doesn’t produce values that should be outliers.
+
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+income_renamed <- rename(income_longer, Code="Country Code")
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+income_renamed$Year <- as.integer(income_renamed$Year)
+disease_income <- merge(income_renamed, cause_of_death)
+disease_income_longer <- pivot_longer(disease_income, -c("Code", "Country Name", "Region", "Income", "Entity", "Year"), names_to="Disease", values_to="Deaths")
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+disease_income_longer <- disease_income_longer %>% 
+  filter(!is.na(Income))
+
+disease_filtered <- filter(disease_income_longer[disease_income_longer$Code == "USA", ])
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+populations <- read_delim("population.csv")
+populations[, c("Indicator Name", "Indicator Code")] <- list(NULL)
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+populations_longer <- pivot_longer(populations, -c("Country Code", "Country Name"), names_to="Year", values_to="Population")
+
+populations_longer <- rename(populations_longer, Code="Country Code")
+```
+
+```{r echo=FALSE, message=FALSE, results='hide', fig.width=12, fig.height=6}
+total_disease <- disease_income_longer %>% 
+  group_by(Disease, Year) %>%
+  summarise(total_deaths = sum(Deaths, na.rm=TRUE))
+total_disease$Disease <- str_extract(total_disease$Disease, "(?<=- ).*?(?= -)")
+ggplot(total_disease, aes(x = Year, y = total_deaths, color = Disease)) +
+  geom_point()
+```
+
+Here we have a graph of child mortality caused by diseases worldwide over time. We can observe that the diseases with the most impact have been lower respiratory infections and birth defects. Lower respiratory deaths have decreased over time for the most part, likely due to an increase in global health awareness.
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+total_disease_populated <- merge(populations_longer, disease_income_longer)
+
+
+total_disease_populated$per_capita <- total_disease_populated$Deaths * 1000 / total_disease_populated$Population
+
+total_disease_populated$Year <- as.numeric(as.character(total_disease_populated$Year))
+
+```
+
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+total_disease_deaths_per_capita <- total_disease_populated %>%
+  group_by(Code, Year) %>%
+  summarise(total_deaths = sum(per_capita, na.rm=TRUE))
+
+mortality_year_int <- mortality_longer
+mortality_year_int$Year <- as.numeric(as.character(mortality_year_int$Year))
+mortality_year_int <- rename(mortality_year_int, Code="Country Code")
+
+total_disease_deaths_mortality <- merge(total_disease_deaths_per_capita, mortality_year_int) %>% filter(Mortality < 2000)
+
+
+```
+
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+cleaned_mortality_longer <- mortality_longer %>% 
+  filter(!is.na(Mortality))
+
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+cleaned_mortality_longer %>% 
+  group_by(Region) %>% 
+  summarise(total_mortality = sum(Mortality))
+```
+```{r echo=FALSE, message=FALSE, results='hide'}
+min_year <- min(cleaned_mortality_longer$Year)
+max_year <- max(cleaned_mortality_longer$Year)
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+year_selected <- c("1975", "1985", "1995", "2005", "2015")
+
+selected_years <- cleaned_mortality_longer %>% 
+  filter(Year %in% year_selected) %>%
+  group_by(Region, Year) %>% 
+  summarise(total_mortality = mean(Mortality))
+
+ggplot(selected_years, aes(x = as.factor(Year), y = total_mortality, fill = Region)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  labs(title = "Average Mortality by Region for Selected Years",
+       x = "Year",
+       y = "Average Mortality",
+       fill = "Region") +
+  theme_minimal()
+```
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+selected_years <- cleaned_mortality_longer %>% 
+  group_by(Region, Year) %>% 
+  summarise(total_mortality = mean(Mortality))
+
+selected_years$Year <- as.numeric(as.character(selected_years$Year))
+
+ggplot(selected_years, aes(x = Year, y = total_mortality, color = Region)) +
+  geom_point() +
+  labs(title = "Average Mortality by Region",
+       x = "Year",
+       y = "Average Mortality",
+       color = "Region") +
+  theme_minimal()
+```
+
+Based on the results shown from the bar graph, we can easily compare the average child mortality in various regions in different years. Based on the graph, we can see that South Asia and Sub-Saharan Africa are two regions with the most child mortality across various years. In 1975 and 1985, the average child mortality remained very high compared to other regions, but the average child mortality in South Asia tends to decline over time(perhaps due to the improved economic conditions/income levels of South Asian countries). The average child mortality of Sub-Saharan remained high from 1970 to 2015. Regions with least average child mortality are Europe & Central Asia and North America where many developed countries are within those two regions. The bar graph provides a clear picture of distribution of average child mortality in different years. The scatter plot illustrates the inverse relationship between average child mortality rate and years, which shows that the overall average child mortality tends to decrease over years. The child mortality of South Asia demonstrates a significant decline from 1970 to 2015. The child mortality of other regions like Sub-Saharan Africa also decreases over years. 
+
+
+
+## Findings
+Overall, our findings indicate a global decline in child mortality rates from 1970 to 2016. Our analysis of mortality due to specific diseases has uncovered significant trends. Notably, deaths from lower respiratory infections and congenital birth defects have substantially decreased over the years. However, these two conditions remain the leading causes of child mortality.
+The inverse relationship between income levels and child mortality rates is one of the pivotal discoveries from our data. As nations progress economically, we observe a corresponding decline in child mortality rates, consistent across various countries. This suggests that economic prosperity contributes to improved healthcare access, better nutrition, and enhanced living conditions, which are crucial in reducing mortality among children. This relationship underscores the efficacy of economic development as a strategic approach to public health improvement.
+
+Interestingly, significant historical events such as conflicts or genocides, exemplified by the Rwandan Genocide, do not deviate substantially from the overall global trends in child mortality. Although these events do impact health outcomes negatively, the data suggests that their long-term effect can be mitigated by subsequent periods of stability and economic recovery. This finding indicates that systemic, sustained health and economic policies can be more influential than short-term emergency responses.
+The analysis of average mortality by region highlights significant disparities in health outcomes globally. Despite an overall decline in child mortality since 1970, regions like South Asia and Sub-Saharan Africa continue to experience higher rates compared to North America and Europe. These persistent disparities underscore the urgent need for targeted healthcare interventions and policies tailored to the specific health risks and social determinants of health in these areas. The unequal distribution of healthcare resources and economic opportunities across these regions further emphasizes the necessity for region-specific strategies to address these inequalities effectively.
+While our study is comprehensive, it does have its limitations. The reliability of our data depends on the accuracy and completeness of the reporting sources, which can vary across different regions and change over time. Additionally, the analysis assumes a direct causality between economic conditions and health outcomes, which may be influenced by numerous unaccounted factors such as cultural practices, government policies, and external aid. These factors suggest caution in overextending claims beyond the observed correlations.
+Looking ahead, one avenue for future analysis involves examining the specific impacts of health policies across different regions. This would provide a nuanced understanding of the effectiveness of various health interventions in reducing child mortality, enabling policymakers to craft strategies that are finely tuned to the needs of each region. Additionally, the application of advanced statistical methods and machine learning could be pivotal in uncovering the complex interplay of factors that influence child mortality. These methods offer the potential to identify subtle patterns and relationships within the data, contributing to more informed and effective public health strategies.
+
+## Summary 
+The project examines child mortality rates from 1970 to 2016 across different countries and regions, focusing on the impacts of economic conditions and disease infections. Utilizing datasets from OurWorldInData and Kaggle, it explores the correlation between child mortality and income levels, revealing a significant inverse relationship. Also, the analysis has identified the major causes of deaths and regions where mortality rates highly occur to understand the broader context. 
+We have provided valuable insights for policymakers, healthcare providers, researchers, and educators. Policymakers can use this data to develop effective health policies, while healthcare providers can better understand the major causes of child mortality to improve treatments and preventative strategies. Researchers can further analyze trends and causes of child mortality, and educators can use this information to enhance health education. Despite its limitations, such as data accuracy and completeness, the study offers a critical understanding of the factors influencing child mortality, promoting informed decision-making and strategic public health improvements.
+Our analysis strongly advocates for policies that enhance economic conditions as a pathway to improving child health outcomes. Addressing economic disparities and boosting incomes, particularly in vulnerable regions, can significantly lower child mortality rates. There is a necessity for sustained efforts and investments in economic development and healthcare infrastructure to create resilient communities. It is crucial to channel resources and efforts into the regions with the highest child mortality rates and tackle the predominant causes of death. By focusing on both economic upliftment and targeted healthcare interventions, we can ensure substantial and sustained reductions in child mortality, ultimately improving the health and well-being of future generations.
